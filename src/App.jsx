@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 
 // --- PARALLAX IMAGE COMPONENT ---
 // Slowly shifts image y position based on page scroll for lookbook feel
@@ -139,9 +139,15 @@ export default function App() {
     };
   }, []);
 
-  // Parallel translations: Left column shifts slightly up, Right column shifts slightly down
-  const leftY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [50, -50]);
-  const rightY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [-50, 50]);
+  // Smooth spring-driven parallax for services columns
+  const smoothServicesProgress = useSpring(scrollYProgress, {
+    stiffness: 80,
+    damping: 28,
+    restDelta: 0.001,
+  });
+  const leftY = useTransform(smoothServicesProgress, [0, 1], isMobile ? [0, 0] : [80, -80]);
+  const rightY = useTransform(smoothServicesProgress, [0, 1], isMobile ? [0, 0] : [-80, 80]);
+  const headerParallaxY = useTransform(smoothServicesProgress, [0, 1], isMobile ? [0, 0] : [30, -30]);
 
   // Newsletter Submit Logic
   const handleSubmit = (e) => {
@@ -454,7 +460,10 @@ className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
         <div className="max-w-[1440px] mx-auto px-6 md:px-20">
           <Reveal>
             {/* Header Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-baseline mb-24 text-left">
+            <motion.div
+              style={{ y: headerParallaxY }}
+              className="grid grid-cols-1 md:grid-cols-12 gap-8 items-baseline mb-24 text-left"
+            >
               <div className="md:col-span-7">
                 <span className="label-caps text-brand-espresso mb-4 block">OUR OFFERINGS</span>
                 <h2 className="display-lg uppercase text-brand-charcoal">
@@ -464,13 +473,14 @@ className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
               <div className="md:col-span-5 body-lg text-brand-charcoal/70 md:pl-8">
                 <p>Experience a lifestyle destination where every detail is considered and every moment is elevated.</p>
               </div>
-            </div>
+            </motion.div>
           </Reveal>
 
         {/* 2-Column Aligned Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 max-w-6xl mx-auto">
 
-          {/* Card 1: Flower Boutique */}
+          {/* Card 1: Flower Boutique — left column parallax */}
+          <motion.div style={{ y: leftY }}>
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -495,8 +505,10 @@ className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
               </div>
             </Reveal>
           </motion.div>
+          </motion.div>
 
-          {/* Card 2: Specialty Coffee */}
+          {/* Card 2: Specialty Coffee — right column parallax */}
+          <motion.div style={{ y: rightY }}>
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -521,8 +533,10 @@ className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
               </div>
             </Reveal>
           </motion.div>
+          </motion.div>
 
-          {/* Card 3: Plants & Landscaping */}
+          {/* Card 3: Plants & Landscaping — left column parallax */}
+          <motion.div style={{ y: leftY }}>
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -547,8 +561,10 @@ className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
               </div>
             </Reveal>
           </motion.div>
+          </motion.div>
 
-          {/* Card 4: Events Organization */}
+          {/* Card 4: Events Organization — right column parallax */}
+          <motion.div style={{ y: rightY }}>
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -572,6 +588,7 @@ className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
                 </div>
               </div>
             </Reveal>
+          </motion.div>
           </motion.div>
 
         </div>
