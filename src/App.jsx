@@ -27,16 +27,55 @@ function ParallaxImage({ src, alt }) {
 
 // --- TEXT REVEAL WRAPPER ---
 // Standard fade-in slide-up transition using Intersection Observer logic in Framer Motion
-function Reveal({ children, delay = 0 }) {
+function Reveal({ children, delay = 0, y = 30 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-120px" }}
       transition={{ duration: 1.4, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
+  );
+}
+
+// --- STAGGERED WORD REVEAL ---
+function TextReveal({ text, className = "", delay = 0 }) {
+  const words = text.split(" ");
+  return (
+    <span className={className}>
+      {words.map((word, i) => (
+        <span key={i} className="inline-block overflow-hidden mr-[0.25em] last:mr-0">
+          <motion.span
+            className="inline-block"
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{
+              duration: 1.2,
+              delay: delay + i * 0.08,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+// --- NAV LINK WITH ACTIVE INDICATOR ---
+function NavLink({ href, id, label, activeSection, onClick }) {
+  const isActive = activeSection === id;
+  return (
+    <a
+      href={href}
+      onClick={onClick}
+      className={`nav-link ${isActive ? "active" : ""}`}
+    >
+      {label}
+    </a>
   );
 }
 
@@ -160,184 +199,255 @@ export default function App() {
     <div className="relative min-h-screen bg-brand-alabaster text-brand-charcoal overflow-x-hidden selection:bg-brand-charcoal selection:text-brand-alabaster">
 
       {/* Header Navigation */}
-      <header className={`fixed top-0 left-0 w-full z-50 flex justify-between items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] border-b border-brand-sandstone/10 backdrop-blur-md bg-brand-alabaster/85
-        ${isScrolled ? 'py-4 px-6 md:px-20' : 'py-7 px-6 md:px-20'}`}
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed top-5 left-0 w-full z-50 px-4 md:px-8"
       >
-        <a href="#" onClick={scrollToSection('home')} className="logo-monogram-box hover:opacity-90 transition-opacity duration-300">
-          <div className="flex flex-col items-center">
-            <span className="font-serif leading-none text-brand-gold text-lg tracking-normal">C&C</span>
-            <span className="text-[5px] tracking-[0.25em] font-sans font-semibold mt-1 text-brand-espresso">Cut & Cure</span>
-          </div>
-        </a>
 
-        <nav className="hidden md:flex gap-12 items-center">
-          <a
-            href="#"
-            onClick={scrollToSection('home')}
-            className={`text-[11px] font-semibold tracking-[0.2em] uppercase text-brand-espresso hover:text-brand-gold transition-colors duration-300 py-1 relative
-              ${activeSection === 'home' ? 'after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-brand-gold' : ''}`}
-          >
-            Home
-          </a>
-          <a
-            href="#services"
-            onClick={scrollToSection('services')}
-            className={`text-[11px] font-semibold tracking-[0.2em] uppercase text-brand-espresso hover:text-brand-gold transition-colors duration-300 py-1 relative
-              ${activeSection === 'services' ? 'after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-brand-gold' : ''}`}
-          >
-            Services
-          </a>
-          <a
-            href="#about"
-            onClick={scrollToSection('about')}
-            className={`text-[11px] font-semibold tracking-[0.2em] uppercase text-brand-espresso hover:text-brand-gold transition-colors duration-300 py-1 relative
-              ${activeSection === 'about' || activeSection === 'gallery' ? 'after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-brand-gold' : ''}`}
-          >
-            About
-          </a>
-          <a
-            href="#contact"
-            onClick={scrollToSection('contact')}
-            className={`text-[11px] font-semibold tracking-[0.2em] uppercase text-brand-espresso hover:text-brand-gold transition-colors duration-300 py-1 relative
-              ${activeSection === 'contact' ? 'after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-brand-gold' : ''}`}
-          >
-            Contact
-          </a>
-        </nav>
+<motion.div
+  animate={{
+    paddingTop: isScrolled ? 16 : 20,
+    paddingBottom: isScrolled ? 16 : 20,
+    paddingLeft: isScrolled ? 24 : 32,
+    paddingRight: isScrolled ? 24 : 32,
+    boxShadow: isScrolled
+      ? "0 8px 32px rgba(0,0,0,0.08)"
+      : "0 10px 40px rgba(0,0,0,0.06)",
+  }}
+  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+  className="max-w-[1400px] mx-auto bg-white/90 backdrop-blur-xl rounded-full"
+>
+  <div className="flex items-center justify-between">
 
-        {/* Mobile menu toggle button */}
-        <div className="md:hidden flex items-center">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="label-caps text-brand-charcoal tracking-widest outline-none z-50 cursor-pointer"
-          >
-            {mobileMenuOpen ? 'CLOSE' : 'MENU'}
-          </button>
-        </div>
+{/* Logo */}
+<a
+  href="#"
+  onClick={scrollToSection("home")}
+  className="flex items-center gap-3"
+>
+  <div className="w-10 h-10 rounded-full border border-brand-gold flex items-center justify-center">
+    <span className="font-serif text-brand-gold text-sm">
+      C&C
+    </span>
+  </div>
 
-        <div className="hidden md:block">
-          <a href="#contact" onClick={scrollToSection('contact')} className="btn-nav-outline hover:opacity-90">
-            Coming Soon
-          </a>
-        </div>
-      </header>
+  <div>
+    <p className="text-sm font-medium text-brand-charcoal">
+      Cut & Cure
+    </p>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 bg-brand-alabaster z-40 flex flex-col justify-center items-center px-6"
-          >
-            <nav className="flex flex-col gap-8 text-center">
-              <a
-                href="#"
-                onClick={(e) => {
-                  scrollToSection('home')(e);
-                  setMobileMenuOpen(false);
-                }}
-                className="font-serif text-3xl text-brand-charcoal uppercase tracking-wider hover:opacity-70 transition-opacity"
-              >
-                Home
-              </a>
-              <a
-                href="#services"
-                onClick={(e) => {
-                  scrollToSection('services')(e);
-                  setMobileMenuOpen(false);
-                }}
-                className="font-serif text-3xl text-brand-charcoal uppercase tracking-wider hover:opacity-70 transition-opacity"
-              >
-                Services
-              </a>
-              <a
-                href="#about"
-                onClick={(e) => {
-                  scrollToSection('about')(e);
-                  setMobileMenuOpen(false);
-                }}
-                className="font-serif text-3xl text-brand-charcoal uppercase tracking-wider hover:opacity-70 transition-opacity"
-              >
-                About
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => {
-                  scrollToSection('contact')(e);
-                  setMobileMenuOpen(false);
-                }}
-                className="font-serif text-3xl text-brand-charcoal uppercase tracking-wider hover:opacity-70 transition-opacity"
-              >
-                Contact
-              </a>
-            </nav>
-            <div className="absolute bottom-12 text-center">
-              <span className="label-caps text-brand-espresso tracking-widest block mb-2">CUT & CURE ATELIER</span>
-              <span className="text-xs text-brand-charcoal/50">JUMEIRAH, DUBAI</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <p className="text-[10px] uppercase tracking-[0.2em] text-brand-espresso/60">
+      Dubai
+    </p>
+  </div>
+</a>
+
+{/* Desktop Nav */}
+<nav className="hidden lg:flex items-center gap-10">
+  <NavLink href="#home" id="home" label="Home" activeSection={activeSection} onClick={scrollToSection("home")} />
+  <NavLink href="#services" id="services" label="Services" activeSection={activeSection} onClick={scrollToSection("services")} />
+  <NavLink href="#about" id="about" label="About" activeSection={activeSection} onClick={scrollToSection("about")} />
+  <NavLink href="#contact" id="contact" label="Contact" activeSection={activeSection} onClick={scrollToSection("contact")} />
+</nav>
+
+{/* Desktop CTA */}
+<div className="hidden lg:block">
+  <a
+    href="#contact"
+    onClick={scrollToSection("contact")}
+    className="btn-premium bg-brand-charcoal text-white px-6 py-3 rounded-full text-xs uppercase tracking-[0.15em]"
+  >
+    Coming Soon
+  </a>
+</div>
+
+{/* Mobile Button */}
+<button
+  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+  className="lg:hidden flex flex-col gap-1.5 p-1"
+  aria-label="Toggle menu"
+>
+  <motion.span
+    animate={mobileMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+    className="w-6 h-[2px] bg-brand-charcoal origin-center"
+    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+  />
+  <motion.span
+    animate={mobileMenuOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
+    className="w-6 h-[2px] bg-brand-charcoal"
+    transition={{ duration: 0.2 }}
+  />
+  <motion.span
+    animate={mobileMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+    className="w-6 h-[2px] bg-brand-charcoal origin-center"
+    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+  />
+</button>
+
+</div>
+
+{/* Mobile Menu */}
+<AnimatePresence>
+{mobileMenuOpen && (
+  <motion.div
+    initial={{ opacity: 0, height: 0 }}
+    animate={{ opacity: 1, height: "auto" }}
+    exit={{ opacity: 0, height: 0 }}
+    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+    className="lg:hidden overflow-hidden"
+  >
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+      }}
+      className="pt-6 pb-2 flex flex-col gap-5"
+    >
+
+      {[
+        { id: "home", label: "Home" },
+        { id: "services", label: "Services" },
+        { id: "about", label: "About" },
+        { id: "contact", label: "Contact" },
+      ].map(({ id, label }) => (
+        <motion.a
+          key={id}
+          href={`#${id}`}
+          variants={{
+            hidden: { opacity: 0, x: -12 },
+            visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+          }}
+          onClick={(e) => {
+            scrollToSection(id)(e);
+            setMobileMenuOpen(false);
+          }}
+          className="nav-link text-sm"
+        >
+          {label}
+        </motion.a>
+      ))}
+
+      <motion.a
+        href="#contact"
+        variants={{
+          hidden: { opacity: 0, y: 8 },
+          visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+        }}
+        onClick={(e) => {
+          scrollToSection("contact")(e);
+          setMobileMenuOpen(false);
+        }}
+        className="btn-premium mt-2 bg-brand-charcoal text-white text-center py-3 rounded-full text-xs uppercase tracking-[0.15em]"
+      >
+        Coming Soon
+      </motion.a>
+
+    </motion.div>
+  </motion.div>
+)}
+</AnimatePresence>
+
+
+</motion.div>
+
+</motion.header>
+
 
       {/* Hero Section */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#1e1a17]" id="home">
-        <div className="absolute top-0 left-0 w-full h-full z-10">
-          <img
-            src="/assets/hero_cover.png"
-            alt="Cut & Cure Dubai Luxury Interior Atmosphere"
-            className="w-full h-full object-cover opacity-60 filter brightness-[0.78] sepia-[0.06] scale-[1.04]"
-            style={{ animation: 'slowZoom 25s infinite alternate ease-in-out' }}
-          />
-        </div>
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-brand-charcoal/20 via-brand-charcoal/40 to-brand-charcoal/60 z-20" />
+      <section
+  className="relative h-screen w-full flex items-center overflow-hidden"
+  id="home"
+>
+  <div className="absolute inset-0 z-10">
+    <img
+      src="/assets/hero_cover.png"
+      alt="Cut & Cure Dubai Luxury Interior Atmosphere"
+      className="w-full h-full object-cover scale-[1.04]"
+      style={{
+        animation: "slowZoom 25s infinite alternate ease-in-out",
+      }}
+    />
+  </div>
 
-        {/* Centered Emblem Card Layout */}
-        <motion.div
-          variants={heroContainerVariants}
-          initial="hidden"
-          animate="visible"
-          className="relative z-30 text-center text-white px-6 max-w-4xl flex flex-col items-center"
-        >
-          {/* Square Logo Emblem */}
-          <motion.div variants={heroItemVariants} className="hero-emblem-card">
-            <span className="hero-emblem-monogram">C&C</span>
-            <span className="hero-emblem-title">Cut & Cure</span>
-          </motion.div>
+  <div className="absolute inset-0 bg-black/35 z-20" />
 
-          {/* EST. 2026 Tag */}
-          <motion.div variants={heroItemVariants} className="hero-year-tag">
-            EST. 2026
-          </motion.div>
+<motion.div
+variants={heroContainerVariants}
+initial="hidden"
+animate="visible"
+className="relative z-30 w-full max-w-[1440px] mx-auto px-8 md:px-20"
 
-          {/* Subtitle Description */}
-          <motion.p
-            variants={heroItemVariants}
-            className="text-[18px] sm:text-[20px] md:text-[22px] font-serif font-light text-brand-cream tracking-wide max-w-3xl leading-relaxed mb-10"
-          >
-            A bespoke flower boutique, premium landscaping, and a specialty coffee experience coming soon to the heart of Dubai.
-          </motion.p>
+>
 
-          {/* Action Button */}
-          <motion.div variants={heroItemVariants}>
-            <a
-              href="#services"
-              onClick={scrollToSection('services')}
-              className="btn-charcoal-solid inline-block"
-            >
-              Discover the Workspace
-            </a>
-          </motion.div>
-        </motion.div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 text-center text-white/80" style={{ animation: 'fadeIn 2.5s ease 1s forwards', opacity: 0 }}>
-          <span className="text-[9px] uppercase tracking-[0.3em] block mb-2 font-sans font-medium text-brand-gold">Explore</span>
-          <span className="text-brand-gold font-light block text-xs">v</span>
-        </div>
-      </section>
+<div className="max-w-[700px] text-white">
+
+  <motion.div variants={heroItemVariants}>
+    <span className="inline-flex items-center border border-white/30 bg-white/10 backdrop-blur-md px-5 py-2 rounded-full text-[11px] uppercase tracking-[0.25em]">
+      EST. 2026
+    </span>
+  </motion.div>
+
+  <motion.h1
+    variants={heroItemVariants}
+    className="mt-8 font-display text-[58px] md:text-[100px] leading-[0.92] font-light tracking-[-0.02em]"
+  >
+    <TextReveal text="Where Luxury" delay={0.5} />
+    <br />
+    <TextReveal text="Meets Life" delay={0.7} />
+  </motion.h1>
+
+  <motion.p
+    variants={heroItemVariants}
+    className="mt-8 text-[18px] md:text-[22px] leading-relaxed text-white/85 max-w-[580px]"
+  >
+    A bespoke flower boutique, premium landscaping,
+    specialty coffee and curated event experiences
+    coming soon to the heart of Dubai.
+  </motion.p>
+
+  <motion.div
+    variants={heroItemVariants}
+    className="flex flex-wrap gap-4 mt-10"
+  >
+    <a
+      href="#services"
+      onClick={scrollToSection("services")}
+      className="btn-premium bg-white text-black px-8 py-4 rounded-full text-sm uppercase tracking-[0.18em] font-medium"
+    >
+      Discover More
+    </a>
+
+    <a
+      href="#about"
+      onClick={scrollToSection("about")}
+      className="btn-outline-premium text-white px-8 py-4 rounded-full text-sm uppercase tracking-[0.18em]"
+    >
+      Our Story
+    </a>
+  </motion.div>
+</div>
+
+
+</motion.div>
+
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 1.6, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+    className="absolute bottom-10 left-8 md:left-20 z-30 scroll-indicator"
+  >
+    <div className="scroll-indicator-line" />
+    <span className="scroll-indicator-text text-[10px] uppercase tracking-[0.3em] text-white/70">
+      Scroll To Explore
+    </span>
+  </motion.div>
+</section>
+
 
       {/* Services / Offerings Section */}
       <section ref={servicesRef} className="py-[160px] bg-brand-alabaster overflow-hidden border-b border-brand-sandstone/10" id="services">
@@ -364,7 +474,7 @@ export default function App() {
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 transition-shadow duration-500 hover:shadow-xl cursor-pointer"
+            className="card-premium bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 cursor-pointer"
           >
             <Reveal>
               <div className="w-full aspect-[4/5] relative">
@@ -375,7 +485,7 @@ export default function App() {
               </div>
               <div className="text-center flex flex-col gap-4 mt-6">
                 <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold">FLORAL ARTISTRY</span>
-                <h3 className="font-serif text-[28px] font-light uppercase text-brand-charcoal">Flower Boutique</h3>
+                <h3 className="font-display text-[28px] font-light uppercase text-brand-charcoal tracking-wide">Flower Boutique</h3>
                 <p className="font-sans text-[14px] font-light leading-relaxed text-brand-espresso/80 max-w-sm mx-auto">
                   Bespoke arrangements for the discerning eye. A fusion of botanical rarity and artistic expression.
                 </p>
@@ -390,7 +500,7 @@ export default function App() {
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 transition-shadow duration-500 hover:shadow-xl cursor-pointer"
+            className="card-premium bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 cursor-pointer"
           >
             <Reveal>
               <div className="w-full aspect-[4/5] relative">
@@ -401,7 +511,7 @@ export default function App() {
               </div>
               <div className="text-center flex flex-col gap-4 mt-6">
                 <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold">THE ART OF ESPRESSO</span>
-                <h3 className="font-serif text-[28px] font-light uppercase text-brand-charcoal">Specialty Coffee</h3>
+                <h3 className="font-display text-[28px] font-light uppercase text-brand-charcoal tracking-wide">Specialty Coffee</h3>
                 <p className="font-sans text-[14px] font-light leading-relaxed text-brand-espresso/80 max-w-sm mx-auto">
                   A curated sensory journey of rare beans. Every cup is a testament to the art of the perfect extraction.
                 </p>
@@ -416,7 +526,7 @@ export default function App() {
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 transition-shadow duration-500 hover:shadow-xl cursor-pointer"
+            className="card-premium bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 cursor-pointer"
           >
             <Reveal>
               <div className="w-full aspect-[4/5] relative">
@@ -427,7 +537,7 @@ export default function App() {
               </div>
               <div className="text-center flex flex-col gap-4 mt-6">
                 <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold">BOTANICAL DESIGN</span>
-                <h3 className="font-serif text-[28px] font-light uppercase text-brand-charcoal">Plants & Landscaping</h3>
+                <h3 className="font-display text-[28px] font-light uppercase text-brand-charcoal tracking-wide">Plants & Landscaping</h3>
                 <p className="font-sans text-[14px] font-light leading-relaxed text-brand-espresso/80 max-w-sm mx-auto">
                   Bespoke green sanctuaries for premium living. Architecting nature inside the modern urban landscape.
                 </p>
@@ -442,7 +552,7 @@ export default function App() {
           <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 transition-shadow duration-500 hover:shadow-xl cursor-pointer"
+            className="card-premium bg-brand-cream border border-brand-sandstone/30 p-8 md:p-10 flex flex-col gap-8 cursor-pointer"
           >
             <Reveal>
               <div className="w-full aspect-[4/5] relative">
@@ -453,7 +563,7 @@ export default function App() {
               </div>
               <div className="text-center flex flex-col gap-4 mt-6">
                 <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold">CURATED SCENOGRAPHY</span>
-                <h3 className="font-serif text-[28px] font-light uppercase text-brand-charcoal">Events Organization</h3>
+                <h3 className="font-display text-[28px] font-light uppercase text-brand-charcoal tracking-wide">Events Organization</h3>
                 <p className="font-sans text-[14px] font-light leading-relaxed text-brand-espresso/80 max-w-sm mx-auto">
                   Crafting moments of timeless elegance. Transforming visions into unforgettable sensory experiences.
                   </p>
@@ -469,98 +579,85 @@ export default function App() {
       </section>
 
       {/* About Section */}
-      <section className="py-[160px] bg-brand-cream border-b border-brand-sandstone/20" id="about">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-20">
-          <Reveal>
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-              <div className="md:col-span-12">
-                <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold mb-12 block">ABOUT CUT & CURE</span>
-              </div>
-              <div className="md:col-span-7 headline-lg text-brand-charcoal">
-                Cut & Cure is a luxury lifestyle destination designed to bring together beauty, nature, craftsmanship, and hospitality under one elegant roof.
-              </div>
-              <div className="md:col-span-4 md:col-start-9 body-lg text-brand-espresso/80 space-y-8 md:pt-4">
-                <p>Inspired by the art of thoughtful living, we create experiences that transform everyday moments into lasting memories.</p>
-                <p>From sculptural floral creations and immersive landscapes to unforgettable gatherings and specialty coffee rituals, every detail is curated with intention.</p>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      <section
+  className="py-32 md:py-40 bg-[#f5f1eb]"
+  id="about"
+>
+  <div className="max-w-[1400px] mx-auto px-6 md:px-12">
 
-      {/* The Dubai Experience & Gallery Section */}
-      <section className="py-[160px] bg-brand-cream border-b border-brand-sandstone/20" id="gallery">
-  <div className="max-w-[1440px] mx-auto px-6 md:px-20">
-    <Reveal>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-24 items-start text-left">
-        <div className="md:col-span-6">
-          <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold mb-4 block">THE DUBAI EXPERIENCE</span>
-          <h2 className="display-lg uppercase text-brand-charcoal">
-            IN THE HEART<br />OF THE CITY
-          </h2>
-        </div>
-        <div className="md:col-span-5 md:col-start-8 body-lg text-brand-espresso/80 space-y-6 md:pt-12">
-          <p>Located in the heart of Dubai, Cut & Cure is being created as a destination where nature, design, and hospitality seamlessly come together.</p>
-          <p>A place to discover, gather, celebrate, and unwind.</p>
-        </div>
-      </div>
-    </Reveal>
+<div className="grid lg:grid-cols-2 gap-8 items-center">
 
-    {/* Gallery Collage */}
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
-      {/* Image 1: Dubai Corner (Col 1 to 7) */}
-      <div className="md:col-span-7 overflow-hidden border border-brand-sandstone bg-brand-cream relative group aspect-[7/6]">
-        <img
-          src="/assets/hero_cover.png"
-          alt="Bespoke Cut & Cure Store Corner"
-          className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-104"
-        />
-      </div>
-
-      {/* Philosophy Text (Col 8 to 12) */}
-      <div className="md:col-span-5 bg-brand-alabaster border border-brand-sandstone p-10 md:p-12 flex flex-col justify-center text-left">
-        <Reveal>
-          <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold mb-5 block">OUR PHILOSOPHY</span>
-          <p className="font-serif text-[20px] lg:text-[22px] font-light leading-relaxed text-brand-charcoal">
-            "We believe true luxury is found in thoughtful details. Every flower selected, every landscape designed, every event curated, and every cup served reflects a commitment to excellence, beauty, and hospitality."
-          </p>
-        </Reveal>
-      </div>
-
-      {/* Image 2: Coffee Curation (Col 1 to 5) */}
-      <div className="md:col-span-5 overflow-hidden border border-brand-sandstone bg-brand-cream relative group aspect-[5/4]">
-        <img
-          src="/assets/coffee_experience.png"
-          alt="Coffee Curation Details"
-          className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-104"
-        />
-      </div>
-
-      {/* Image 3: Flowers (Col 6 to 12) */}
-      <div className="md:col-span-7 overflow-hidden border border-brand-sandstone bg-brand-cream relative group aspect-[7/4]">
-        <img
-          src="/assets/flower_boutique.png"
-          alt="Beautiful Muted Roses Arrangement"
-          className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-104"
-        />
-      </div>
+  {/* Image Side */}
+  <Reveal y={40}>
+    <div className="relative overflow-hidden rounded-[32px] h-[500px] md:h-[650px] image-reveal-mask">
+      <motion.img
+        src="/assets/flower_boutique.png"
+        alt="Cut & Cure"
+        className="w-full h-full object-cover"
+        whileInView={{ scale: 1 }}
+        initial={{ scale: 1.08 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+      />
     </div>
+  </Reveal>
+
+  {/* Content Side */}
+  <Reveal delay={0.15}>
+    <motion.div
+      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 30 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+      className="bg-white rounded-[32px] p-8 md:p-14 shadow-sm"
+    >
+
+    <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-brand-gold block mb-6">
+      ABOUT CUT & CURE
+    </span>
+
+    <h2 className="font-display text-[42px] md:text-[68px] leading-[0.95] font-light text-brand-charcoal mb-8 tracking-[-0.02em]">
+      Where
+      Beauty
+      Meets
+      Lifestyle
+    </h2>
+
+    <p className="text-lg text-brand-espresso/80 leading-relaxed mb-6 font-light">
+      Cut & Cure is a luxury lifestyle destination designed to bring together beauty, nature, craftsmanship and hospitality under one elegant roof.
+    </p>
+
+    <p className="text-lg text-brand-espresso/80 leading-relaxed font-light">
+      Inspired by the art of thoughtful living, we create experiences that transform everyday moments into lasting memories through flowers, landscapes, coffee and events.
+    </p>
+
+    </motion.div>
+  </Reveal>
+
+</div>
+
+
   </div>
 </section>
 
+
+      {/* The Dubai Experience & Gallery Section */}
+      
+
       {/* Luxury Intake Inquiry Section */}
-      <section className="py-16 bg-neutral-50 text-center" id="newsletter">
+      <section className="py-16 bg-neutral-50 text-center" id="contact">
   <div className="max-w-md w-full mx-auto px-6">
     
+    <Reveal>
     {/* Header */}
     <div className="mb-8">
       <span className="text-xs font-semibold tracking-widest uppercase text-amber-600 block mb-2">
         Join the Atelier
       </span>
-      <h2 className="text-2xl font-light uppercase text-neutral-800 mb-3 tracking-wide">
+      <h2 className="font-display text-2xl font-light uppercase text-neutral-800 mb-3 tracking-wide">
         Stay Updated
       </h2>
-      <p className="text-sm text-neutral-600 leading-relaxed">
+      <p className="text-sm text-neutral-600 leading-relaxed font-light">
         Receive exclusive event invitations and the latest luxury updates from Dubai.
       </p>
     </div>
@@ -576,24 +673,33 @@ export default function App() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="ENTER YOUR EMAIL"
           required
-          className="w-full py-3 border-b border-neutral-300 focus:border-neutral-800 outline-none bg-transparent uppercase text-sm tracking-wide transition-colors"
+          className="luxury-input uppercase text-sm tracking-wide"
         />
       </div>
 
       <button
         type="submit"
-        className="w-full mt-2 py-3.5 bg-neutral-900 text-white text-xs tracking-widest uppercase hover:bg-neutral-800 transition-colors font-medium"
+        className="btn-premium w-full mt-2 py-3.5 bg-neutral-900 text-white text-xs tracking-widest uppercase hover:bg-neutral-800 font-medium"
       >
         Subscribe
       </button>
     </form>
 
     {/* Success Message */}
+    <AnimatePresence>
     {showSuccess && (
-      <p className="mt-4 text-xs text-emerald-700 tracking-wide">
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-4 text-xs text-emerald-700 tracking-wide"
+      >
         Thank you for subscribing!
-      </p>
+      </motion.p>
     )}
+    </AnimatePresence>
+    </Reveal>
     
   </div>
 </section>
