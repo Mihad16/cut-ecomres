@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 
+
 function Servicepage({ className = '' }) {
   return (
     <span className={`inline-flex w-fit items-center bg-brand-charcoal text-brand-gold border border-brand-gold/20 text-[9px] uppercase tracking-[0.22em] py-1.5 px-3.5 font-sans font-medium ${className}`}>
