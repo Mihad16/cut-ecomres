@@ -37,7 +37,7 @@ export default function Navbar({ activeSection, scrollToSection }) {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-5 left-0 w-full z-50 px-4 md:px-8"
+      className="fixed w-full z-50 px-0 md:px-0"
     >
       <motion.div
         animate={{
@@ -50,26 +50,32 @@ export default function Navbar({ activeSection, scrollToSection }) {
             : '0 10px 40px rgba(0,0,0,0.06)',
         }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-[1400px] mx-auto bg-white/90 backdrop-blur-xl rounded-full"
+        className="mx-auto bg-white/90 backdrop-blur-xl"
       >
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <a
-            href="#"
-            onClick={scrollToSection('home')}
-            className="flex items-center gap-3"
-          >
-            <div className="w-10 h-10 rounded-full border border-brand-gold flex items-center justify-center">
-              <span className="font-serif text-brand-gold text-sm">C&C</span>
-            </div>
+          {/* Logo - Circle removed */}
+         <a
+  href="#"
+  onClick={scrollToSection("home")}
+  className="flex items-center gap-3"
+>
+  <div className="w-10 h-10 rounded-full border border-brand-gold flex items-center justify-center">
+    <span className="font-serif text-brand-gold text-sm">
+      C&C
+    </span>
+  </div>
 
-            <div>
-              <p className="text-sm font-medium text-brand-charcoal">Cut & Cure</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-brand-espresso/60">
-                Dubai
-              </p>
-            </div>
-          </a>
+  <div>
+    <p className="text-sm font-medium text-brand-charcoal">
+      Cut & Cure
+    </p>
+
+    <p className="text-[10px] uppercase tracking-[0.2em] text-brand-espresso/60">
+      Dubai
+    </p>
+  </div>
+</a>
+
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-10">
